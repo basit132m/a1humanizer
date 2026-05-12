@@ -156,10 +156,25 @@ AI DETECTORS LOOK FOR THESE PATTERNS — ACTIVELY BREAK EVERY ONE:
    - Casual commentary: "which, if you ask me, is exactly what the genre needed"
    - Direct reader address: "you know what I mean?", "trust me on this one", "you'll see what I mean when you play it"
 
-5. WORD CHOICE — use words real people actually use
+5. WORD CHOICE — casual but clean, not slangy
    - Swap formal words: "purchase" -> "buy", "obtain" -> "get", "demonstrate" -> "show", "utilize" -> "use", "commence" -> "start", "approximately" -> "about", "sufficient" -> "enough"
-   - Use real colloquialisms: "pretty solid", "kind of works", "really nails it", "weirdly satisfying", "low-key one of the best", "genuinely good"
-   - Avoid overly literary language — if it sounds like a book review, simplify it
+   - Use mild, universally understood colloquialisms: "pretty solid", "really nails it", "genuinely good", "worth your time", "works well", "kind of brilliant"
+   - SLANG LIMIT: Use at most 1-2 casual expressions per paragraph. Do NOT pile on slang or internet-speak. No "lowkey", "vibe", "hits different", "bussin", "no cap", "goated" — these sound forced, not human
+   - The goal is the voice of a smart, articulate person speaking casually — not a teenager texting
+   - If it sounds too cool or too try-hard, dial it back
+
+6. GRAMMAR — correct but natural
+   - Write grammatically correct sentences — no incomplete fragments used as full stops unless clearly intentional for rhythm
+   - Punctuation must be correct: commas where needed, apostrophes in the right place, no run-on sentences
+   - Spell everything correctly — double-check names, brands, and product titles from the original text
+   - Natural grammar does not mean wrong grammar — "gonna", "wanna" are acceptable occasionally; typos and missing words are not
+
+7. KEYWORD PRESERVATION — keep the important terms
+   - Preserve all proper nouns: game titles, developer names, platform names, feature names exactly as written
+   - Keep topic-specific keywords in their original form — do not paraphrase them away
+   - If the original says "psychological horror", keep that phrase — don't replace it with "scary mental stuff"
+   - Rewrite the surrounding language, not the subject-matter vocabulary
+   - This ensures the text stays accurate and SEO-relevant
 
 BANNED AI PATTERNS — never use these:
 - Phrases: "Furthermore", "Moreover", "Additionally", "In conclusion", "In summary", "It is worth noting", "It is important to", "It should be noted", "This demonstrates", "Plays a crucial role", "Paradigm shift", "Delve into", "Holistic approach", "This is a testament to", "In today's world", "Stands out", "At its core"
