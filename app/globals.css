@@ -2,55 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #0a0a0f;
-  --foreground: #f9fafb;
+/* ── Dark theme (default) ─────────────────────────────── */
+:root,
+.dark {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-sidebar: #0e0e18;
+  --bg-input: #1a1a2e;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #4b5563;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Light theme ──────────────────────────────────────── */
+.light {
+  --bg-primary: #f4f4f8;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #ececf2;
+  --bg-input: #f9f9fc;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --text-primary: #0f0f1a;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Custom scrollbar */
+/* ── Scrollbar ────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-strong);
   border-radius: 99px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
 }
 
-/* Range slider thumb */
+/* ── Range slider ─────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #a855f7;
   cursor: pointer;
-  border: 2px solid #0a0a0f;
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+  transition: box-shadow 0.15s;
 }
-
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 5px rgba(168, 85, 247, 0.2);
+}
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #a855f7;
   cursor: pointer;
-  border: 2px solid #0a0a0f;
+  border: 2px solid var(--bg-primary);
 }
 
 @layer utilities {

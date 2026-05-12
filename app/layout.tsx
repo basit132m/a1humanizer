@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "./components/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -17,27 +18,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-[#0a0a0f] text-white antialiased`}>
-        {children}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "#1a1a2e",
-              color: "#e5e7eb",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "12px",
-              fontSize: "14px",
-            },
-            success: {
-              iconTheme: { primary: "#a855f7", secondary: "#1a1a2e" },
-            },
-            error: {
-              iconTheme: { primary: "#ef4444", secondary: "#1a1a2e" },
-            },
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Anti-flash: apply saved theme before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('a1h_theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');}else{document.documentElement.classList.add('dark');}}catch(e){}`,
           }}
         />
+      </head>
+      <body className={`${inter.className} antialiased`}>
+        <ThemeProvider>
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              className: "!bg-white dark:!bg-[#1a1a2e] !text-gray-900 dark:!text-gray-100 !border !border-gray-200 dark:!border-white/10 !rounded-xl !text-sm !shadow-lg",
+              success: {
+                iconTheme: { primary: "#a855f7", secondary: "transparent" },
+              },
+              error: {
+                iconTheme: { primary: "#ef4444", secondary: "transparent" },
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

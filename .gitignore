@@ -28,6 +28,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# key storage (contains sensitive data — create on server manually)
+data/keys.json
+
 # vercel
 .vercel
 

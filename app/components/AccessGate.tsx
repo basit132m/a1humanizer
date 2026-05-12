@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AccessGateProps {
-  onUnlock: () => void;
+  onUnlock: (key: string, isAdmin: boolean) => void;
 }
 
 export default function AccessGate({ onUnlock }: AccessGateProps) {
@@ -25,13 +25,13 @@ export default function AccessGate({ onUnlock }: AccessGateProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: key.trim() }),
       });
-      const data = await res.json() as { valid: boolean };
+      const data = (await res.json()) as { valid: boolean; isAdmin: boolean };
 
       if (data.valid) {
         localStorage.setItem("a1h_access_key", key.trim());
-        onUnlock();
+        onUnlock(key.trim(), data.isAdmin);
       } else {
-        setError("Invalid access key. Please check your key and try again.");
+        setError("Invalid access key. Please check and try again.");
       }
     } catch {
       setError("Network error. Please try again.");
@@ -41,58 +41,86 @@ export default function AccessGate({ onUnlock }: AccessGateProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div
+      className="min-h-screen flex items-center justify-center px-4 transition-colors duration-200"
+      style={{ background: "var(--bg-primary)" }}
+    >
+      {/* Background blobs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-20 blur-3xl bg-purple-600" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full opacity-10 blur-3xl bg-blue-500" />
+      </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.45 }}
         className="relative w-full max-w-md"
       >
-        <div className="bg-[#12121a] border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div
+          className="rounded-2xl border p-8 shadow-2xl transition-colors duration-200"
+          style={{
+            background: "var(--bg-secondary)",
+            borderColor: "var(--border)",
+            boxShadow: "var(--shadow)",
+          }}
+        >
+          {/* Icon */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg shadow-purple-500/30 mb-4">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">A1 Humanizer</h1>
-            <p className="text-gray-400 text-sm">
+            <h1
+              className="text-2xl font-bold mb-1"
+              style={{ color: "var(--text-primary)" }}
+            >
+              A1 Humanizer
+            </h1>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               Enter your access key to continue
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <input
-                type="text"
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                placeholder="Enter access key..."
-                className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
-                autoFocus
-              />
-            </div>
+            <input
+              type="text"
+              value={key}
+              onChange={(e) => {
+                setKey(e.target.value);
+                setError("");
+              }}
+              placeholder="Enter access key..."
+              className="w-full rounded-xl px-4 py-3 text-sm border outline-none focus:ring-2 focus:ring-purple-500/40 transition-all"
+              style={{
+                background: "var(--bg-input)",
+                borderColor: error ? "#ef4444" : "var(--border)",
+                color: "var(--text-primary)",
+              }}
+              autoFocus
+              autoComplete="off"
+            />
 
             <AnimatePresence>
               {error && (
                 <motion.p
-                  initial={{ opacity: 0, y: -5 }}
+                  initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="text-red-400 text-sm text-center"
+                  className="text-red-400 text-xs text-center"
                 >
                   {error}
                 </motion.p>
               )}
             </AnimatePresence>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading || !key.trim()}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-lg shadow-purple-500/20"
             >
               {loading ? (
                 <>
@@ -105,11 +133,14 @@ export default function AccessGate({ onUnlock }: AccessGateProps) {
               ) : (
                 "Unlock Access"
               )}
-            </button>
+            </motion.button>
           </form>
 
-          <p className="text-center text-gray-600 text-xs mt-6">
-            Need an access key? Contact your administrator.
+          <p
+            className="text-center text-xs mt-6"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Need a key? Contact your administrator.
           </p>
         </div>
       </motion.div>

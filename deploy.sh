@@ -24,12 +24,18 @@ fi
 echo "==> Installing dependencies..."
 npm ci --production=false
 
-# Create .env.local if it doesn't exist
+# Warn if .env.local is missing
 if [ ! -f "$DEPLOY_DIR/.env.local" ]; then
-  echo "==> WARNING: .env.local not found! Create it manually:"
-  echo "    ANTHROPIC_API_KEY=your_key_here"
-  echo "    ACCESS_KEYS=key1,key2,key3"
+  echo ""
+  echo "  ⚠  WARNING: .env.local not found! Create it before starting:"
+  echo "     ANTHROPIC_API_KEY=sk-ant-..."
+  echo "     ADMIN_KEY=your-secret-admin-key"
+  echo "     ACCESS_KEYS=optional-legacy-keys"
+  echo ""
 fi
+
+# Ensure data directory exists for key storage
+mkdir -p "$DEPLOY_DIR/data"
 
 # Build
 echo "==> Building..."
@@ -44,4 +50,6 @@ else
 fi
 
 pm2 save
+echo ""
 echo "==> Deploy complete! App running on port 3000."
+echo "==> Visit: https://a1humanizer.site"
