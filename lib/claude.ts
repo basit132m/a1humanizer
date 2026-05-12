@@ -1,6 +1,25 @@
 // Pollinations AI — 100% free, no API key required
 // https://text.pollinations.ai
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")   // **bold**
+    .replace(/\*(.+?)\*/g, "$1")        // *italic*
+    .replace(/__(.+?)__/g, "$1")        // __bold__
+    .replace(/_(.+?)_/g, "$1")          // _italic_
+    .replace(/~~(.+?)~~/g, "$1")        // ~~strikethrough~~
+    .replace(/#{1,6}\s+/g, "")          // ## headers
+    .replace(/\[(.+?)\]\(.+?\)/g, "$1") // [links](url)
+    .replace(/`(.+?)`/g, "$1")          // `code`
+    .replace(/^\s*[-*+]\s+/gm, "")      // bullet points
+    .replace(/^\s*\d+\.\s+/gm, "")      // numbered lists
+    .replace(/—/g, "-")            // em-dash → hyphen
+    .replace(/–/g, "-")            // en-dash → hyphen
+    .replace(/​/g, "")             // zero-width spaces
+    .replace(/\n{3,}/g, "\n\n")         // max 2 newlines
+    .trim();
+}
+
 export type StylePreset =
   | "humanize"
   | "academic"
@@ -113,22 +132,29 @@ Tone: ${TONE_DESCRIPTIONS[tone]}
 Purpose: ${PURPOSE_DESCRIPTIONS[purpose]}
 Intensity: Level ${level}/10 — ${levelInstruction}
 
+CRITICAL FORMATTING RULES — MUST FOLLOW:
+- Output plain text ONLY — absolutely NO markdown formatting
+- NO bold text, NO asterisks (*), NO underscores (_), NO em-dashes (—), NO bullet points
+- NO headers, NO lists, NO special characters beyond normal punctuation
+- Write in flowing paragraphs just like a human would type in a Word document
+
 NEVER use these AI-signature phrases:
 "Furthermore" | "Moreover" | "Additionally" | "In conclusion" | "In summary" | "To summarize" | "It is worth noting" | "It is important to note" | "It should be noted" | "It goes without saying" | "Needless to say" | "As previously mentioned" | "Without a doubt" | "It is clear that" | "It is evident that" | "This demonstrates" | "Plays a crucial role" | "Plays a vital role" | "Paradigm shift" | "Deep dive" | "Synergy" | "Delve into" | "Holistic approach" | "Leverage" (as verb) | "Utilize" | "Facilitate" | "Streamline" | "Robust" | "Innovative solution" | "This is a testament to" | "In today's world" | "In today's fast-paced"
 
-Techniques to apply:
-- Vary sentence lengths dramatically: mix short sentences (4-8 words) with longer ones (20-30 words)
+Writing techniques:
+- Keep sentences connected and flowing — avoid choppy one-line paragraphs
+- Vary sentence lengths naturally within each paragraph
 - Use contractions naturally: don't, can't, won't, it's, I've, you'd, we're, they're
 - Prefer active voice
 - Replace vague generalities with concrete specifics
-- Allow natural thought development: occasional parenthetical aside or rhetorical question
+- Use natural transitions: "what makes it special", "the real highlight", "beyond that"
 - Replace formal collocations: "in order to" -> "to", "due to the fact that" -> "because"
-- Inject personality appropriate to the style
+- Write like a knowledgeable person explaining something to a friend
 
-Return ONLY the rewritten text. No explanations, no preamble. Preserve the original language — do NOT translate.`;
+Return ONLY the rewritten plain text. No explanations, no preamble, no formatting. Preserve the original language.`;
 
   const result = await pollinationsChat(system, text);
-  return result.trim();
+  return stripMarkdown(result.trim());
 }
 
 export interface DetectionResult {
