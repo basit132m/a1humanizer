@@ -1,6 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Pollinations AI — 100% free, no API key required
+// https://text.pollinations.ai
 
 export type StylePreset =
   | "humanize"
@@ -60,10 +59,10 @@ const PURPOSE_DESCRIPTIONS: Record<PurposePreset, string> = {
 };
 
 const LEVEL_INSTRUCTIONS: Record<number, string> = {
-  1: "Make minimal changes only: fix 2–3 obvious AI phrases, add a contraction or two. Preserve structure entirely.",
-  2: "Light touch: remove AI stock phrases, soften formal vocabulary, add natural flow in 10–15% of sentences.",
-  3: "Mild rework: replace formal collocations, vary 2–3 sentence structures, add a contraction or casual aside.",
-  4: "Moderate: restructure 20–30% of sentences, replace formal vocabulary, improve rhythm significantly.",
+  1: "Make minimal changes only: fix 2-3 obvious AI phrases, add a contraction or two. Preserve structure entirely.",
+  2: "Light touch: remove AI stock phrases, soften formal vocabulary, add natural flow in 10-15% of sentences.",
+  3: "Mild rework: replace formal collocations, vary 2-3 sentence structures, add a contraction or casual aside.",
+  4: "Moderate: restructure 20-30% of sentences, replace formal vocabulary, improve rhythm significantly.",
   5: "Balanced: rewrite roughly half the sentences for natural flow, add personality, vary length and rhythm.",
   6: "Natural: rewrite most sentences, inject first-person perspective where appropriate, add rhetorical touches.",
   7: "Strong: transform writing style throughout, inject strong personality, restructure paragraphs as needed.",
@@ -71,6 +70,32 @@ const LEVEL_INSTRUCTIONS: Record<number, string> = {
   9: "Intense: completely reimagine the expression — burstiness engineering, first-person voice, unexpected word choices.",
   10: "Maximum: total transformation — maintain only the core meaning; every technique active; make it unmistakably human.",
 };
+
+async function pollinationsChat(
+  systemPrompt: string,
+  userMessage: string,
+  seed?: number
+): Promise<string> {
+  const response = await fetch("https://text.pollinations.ai/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage },
+      ],
+      model: "openai",
+      private: true,
+      seed: seed ?? Math.floor(Math.random() * 999999),
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Pollinations API error: ${response.status}`);
+  }
+
+  return await response.text();
+}
 
 export async function humanizeText(
   text: string,
@@ -81,42 +106,29 @@ export async function humanizeText(
 ): Promise<string> {
   const levelInstruction = LEVEL_INSTRUCTIONS[level] ?? LEVEL_INSTRUCTIONS[5];
 
-  const system = `You are an expert human writer who rewrites AI-generated text so it passes any detection test and reads as authentically human.
+  const system = `You are an expert human writer who rewrites AI-generated text so it sounds completely natural and human-written.
 
-<style>${STYLE_DESCRIPTIONS[style]}</style>
-<tone>${TONE_DESCRIPTIONS[tone]}</tone>
-<purpose>${PURPOSE_DESCRIPTIONS[purpose]}</purpose>
-<intensity>Level ${level}/10 — ${levelInstruction}</intensity>
+Style: ${STYLE_DESCRIPTIONS[style]}
+Tone: ${TONE_DESCRIPTIONS[tone]}
+Purpose: ${PURPOSE_DESCRIPTIONS[purpose]}
+Intensity: Level ${level}/10 — ${levelInstruction}
 
-<forbidden>
-NEVER use these AI-signature phrases — delete or replace them entirely:
-"Furthermore" | "Moreover" | "Additionally" | "In conclusion" | "In summary" | "To summarize" | "It is worth noting" | "It is important to note" | "It should be noted" | "It goes without saying" | "Needless to say" | "As previously mentioned" | "Without a doubt" | "It is clear that" | "It is evident that" | "This demonstrates" | "Plays a crucial role" | "Plays a vital role" | "Paradigm shift" | "Deep dive" | "Synergy" | "Delve into" | "Holistic approach" | "Leverage" (as verb) | "Utilize" (use "use") | "Facilitate" (use "help/allow") | "Streamline" | "Robust" | "Innovative solution" | "This is a testament to" | "In today's world" | "In today's fast-paced"
-</forbidden>
+NEVER use these AI-signature phrases:
+"Furthermore" | "Moreover" | "Additionally" | "In conclusion" | "In summary" | "To summarize" | "It is worth noting" | "It is important to note" | "It should be noted" | "It goes without saying" | "Needless to say" | "As previously mentioned" | "Without a doubt" | "It is clear that" | "It is evident that" | "This demonstrates" | "Plays a crucial role" | "Plays a vital role" | "Paradigm shift" | "Deep dive" | "Synergy" | "Delve into" | "Holistic approach" | "Leverage" (as verb) | "Utilize" | "Facilitate" | "Streamline" | "Robust" | "Innovative solution" | "This is a testament to" | "In today's world" | "In today's fast-paced"
 
-<techniques>
-- Vary sentence lengths dramatically: mix short sentences (4–8 words) with longer ones (20–30 words) — this burstiness is the #1 human signal
+Techniques to apply:
+- Vary sentence lengths dramatically: mix short sentences (4-8 words) with longer ones (20-30 words)
 - Use contractions naturally: don't, can't, won't, it's, I've, you'd, we're, they're
-- Prefer active voice; passive voice is fine occasionally but not as default
-- Replace vague generalities with concrete specifics ("many" → "three major")
-- Allow natural thought development: occasional parenthetical aside, a rhetorical question, a brief self-correction
-- Replace formal collocations: "in order to" → "to", "due to the fact that" → "because", "a large number of" → "plenty of", "has the ability to" → "can"
-- Inject personality appropriate to the style — academic can still be interesting, technical can still be clear
-- Deliberate minor imperfection (level 7+): a mid-sentence realization, an informal aside in parentheses
-- Do NOT over-edit text that is already natural — preserve what works
-</techniques>
+- Prefer active voice
+- Replace vague generalities with concrete specifics
+- Allow natural thought development: occasional parenthetical aside or rhetorical question
+- Replace formal collocations: "in order to" -> "to", "due to the fact that" -> "because"
+- Inject personality appropriate to the style
 
-Return ONLY the rewritten text. No explanations, no preamble, no "Here is the rewritten version:". Preserve the original language — do NOT translate.`;
+Return ONLY the rewritten text. No explanations, no preamble. Preserve the original language — do NOT translate.`;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 8192,
-    system,
-    messages: [{ role: "user", content: text }],
-  });
-
-  const content = message.content[0];
-  if (content.type !== "text") throw new Error("Unexpected response type");
-  return content.text;
+  const result = await pollinationsChat(system, text);
+  return result.trim();
 }
 
 export interface DetectionResult {
@@ -126,31 +138,30 @@ export interface DetectionResult {
 }
 
 export async function detectAI(text: string): Promise<DetectionResult> {
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1024,
-    system: `You are an expert AI content forensics analyst. Analyze the text for AI-generation signals.
+  const system = `You are an AI content detection expert. Analyze the text for AI-generation signals.
 
-<task>
-Determine the probability this text was AI-generated. Look for:
+Look for:
 - Repetitive sentence structures and predictable rhythm
 - Stock AI phrases (furthermore, moreover, it is worth noting, etc.)
 - Excessive hedging or formal vocabulary
-- Lack of personal anecdotes, imperfections, or authentic voice
+- Lack of personal voice or authentic imperfections
 - Uniform sentence length (low burstiness)
 - Passive voice overuse
 - Generic transitions and template endings
 - Contractions and colloquialisms (indicate human writing)
-</task>
 
-Return ONLY valid JSON — no markdown, no explanation:
-{"score": number (0-100, 100=definitely AI), "signals": string[] (4-7 specific observations), "verdict": "Human"|"Likely Human"|"Mixed"|"Likely AI"|"AI Generated"}`,
-    messages: [{ role: "user", content: text }],
-  });
+You MUST respond with ONLY a valid JSON object — no markdown, no extra text, just raw JSON:
+{"score": <number 0-100>, "signals": ["signal1","signal2","signal3","signal4"], "verdict": "<Human|Likely Human|Mixed|Likely AI|AI Generated>"}
 
-  const content = message.content[0];
-  if (content.type !== "text") throw new Error("Unexpected response type");
+Where score 0 = definitely human, 100 = definitely AI.`;
 
-  const raw = content.text.trim().replace(/^```json?\s*/i, "").replace(/\s*```$/i, "");
-  return JSON.parse(raw) as DetectionResult;
+  const raw = await pollinationsChat(system, text);
+
+  // Extract JSON from response — handle cases where model adds extra text
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error("Could not parse detection result");
+  }
+
+  return JSON.parse(jsonMatch[0]) as DetectionResult;
 }
